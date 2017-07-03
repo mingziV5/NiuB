@@ -48,24 +48,61 @@ class Cursor():
         return 'ok'
     
     def _select_sql(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
-        #TODO
-        return 'ok'
+        if isinstance(where, dict) and where:
+            conditions = []
+            for k, v in where.items():
+                if isinstance(v, list):
+                    conditions.append('%s IN (%s)' %(k, ','.join(v)))
+                elif isinstance(v, str) or isinstance(v, unicode):
+                    conditions.append("%s='%s'" %(k, v))
+                elif isinstance(v, int):
+                    conditions.append('%s=%s' %(k, v))
+            sql = 'SELECT %s FROM %s WHERE %s' %(','.join(fields), table_name, ' AND '.join(conditions))
+        elif not where:
+            sql = 'SELECT %s FROM %s' %(','.join(fields), table_name)
+        else:
+            sql = ''
+        if order and (isinstance(order, str) or isinstance(order, unicode)):
+            sql = '%s ORDER BY %s %s' %(sql, order, 'ASC' if asc_order else 'DESC')
+        if limit and isinstance(limit, tuple) and len(limit) == 2:
+            sql = '%s LIMIT %s,%s' %(sql, limit[0], limit[1])
+        utils.write_log('api').info('Select sql: %s' %sql)
+        return sql
+        
 
     def get_one_result(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
-        #TODO
-        return 'ok'
+        sql = self._select_sql(table_name, fields, where, order, asc_order, limit)
+        if sql:
+            self._execute(sql)
+            result_set = self._fetchone()
+            if result_set:
+                return dict([(k, '' if result_set[i] is None else result_set[i]) for i, k in enumerate(fields)])
+            else:
+                return {}
+        return None
 
     def get_results(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
         #TODO
         return 'ok'
 
     def _update_sql(self, table_name, data, where, fields=None):
-        #TODO
-        return 'ok'
+        if not (where and isinstance(where, dict)):
+            return None
+        where_cond = ["%s='%s'" %(k, v) for k, v in where.items()]
+        if fields:
+            conditions = ["%s='%s'" %(k, data[k]) for k in fields]
+        else:
+            conditions = ["%s='%s'" %(k, data[k]) for k in data]
+        sql = 'UPDATE %s SET %s WHERE %s' %(table_name, ','.join(conditions), ' AND '.join(where_cond))
+        utils.write_log('api').info("Update sql: %s" %sql)
+        return sql
 
     def execute_update_sql(self, table_name, data, where, fields=None):
-        #TODO
-        return 'ok'
+        sql = self._update_sql(table_name, data, where, fields)
+        if sql:
+            return self._execute(sql)
+        else:
+            return "error"
 
     def _delete_sql(self, table_name, where):
         #TODO
