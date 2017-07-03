@@ -12,7 +12,7 @@ import logging,logging.config
 #from logging import config
 
 work_dir = os.path.dirname(os.path.realpath(__file__))
-#
+#获取配置文件的方法
 def get_config(section=''):
     config = ConfigParser.ConfigParser()
     service_conf = os.path.join(work_dir, 'conf/service.conf')
@@ -23,3 +23,9 @@ def get_config(section=''):
     if section and config.has_section(section):
         conf_items.update(config.items(section))
     return conf_items
+
+def write_log(log_name):
+    log_conf = os.path.join(work_dir, 'conf/logger.conf')
+    logging.config.fileConfig(log_conf)
+    logger = logging.getLogger(log_name)
+    return logger
