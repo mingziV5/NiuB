@@ -2,6 +2,7 @@
 #coding:utf-8
 import utils
 import MySQLdb as mysql
+import traceback
 
 class Cursor():
     def __init__(self, config):
@@ -26,6 +27,7 @@ class Cursor():
         try:
             return self.cur.execute(sql)
         except:
+            utils.write_log('api').error('sql execute error %s' %traceback.format_exc())
             self._close_db()
             self._connect_db()
             return self.cur.execute(sql)
@@ -41,8 +43,8 @@ class Cursor():
         for k, v in data.items():
             fields.append(k)
             values.append("'%s'" %v)
-        sql = 'INSERI INTO %s (%s) values (%s)' %(table_name, ','.join(fields), ','.join(values))
-        utils.write('api').info('Insert sql: %s' %sql)
+        sql = 'INSERT INTO %s (%s) values (%s)' %(table_name, ','.join(fields), ','.join(values))
+        utils.write_log('api').info('Insert sql: %s' %sql)
         return sql
 
     def execute_insert_sql(self, table_name, data):
@@ -89,15 +91,14 @@ class Cursor():
         return 'error'
 
     def get_results(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
-        sql = _select_sql(table_name, fields, where, order, asc_order, limit)
+        sql = self._select_sql(table_name, fields, where, order, asc_order, limit)
         if sql:
             self._execute(sql)
             results_all_set = self._fetchall()
             if results_all_set:
                 results_list = []
                 for result in results_all_set:
-                    for index, item in enumerate(fields):
-                        results_list.append(dict(item, '' if result[index] is None else result[index]))
+                    results_list.append(dict([(item, '' if result[index] is None else result[index]) for index, item in enumerate(fields)]))
                 return results_list
             else:
                 return {}
@@ -107,7 +108,7 @@ class Cursor():
     def _update_sql(self, table_name, data, where, fields=None):
         if not (where and isinstance(where, dict)):
             utils.write_log('api').error("Update error missing where conditions")
-            return 'error'
+            return None
         where_cond = ["%s='%s'" %(k, v) for k, v in where.items()]
         if fields:
             conditions = ["%s='%s'" %(k, data[k]) for k in fields]
@@ -128,9 +129,10 @@ class Cursor():
     def _delete_sql(self, table_name, where):
         if not (where and isinstance(where, dict)):
             utils.write_log('api').error('Delete error missing where conditions')
-            return 'error'
-        conditions = ["%s='%s'" %(k, v) for k, v in where.itmes()]
+            return None
+        conditions = ["%s='%s'" %(k, v) for k, v in where.items()]
         sql = 'DELETE FROM %s WHERE %s' %(table_name, ' AND '.join(conditions)) 
+        utils.write_log('api').info('Delete sql: %s' %sql)
         return sql
 
     def execute_delete_sql(self, table_name, where):
