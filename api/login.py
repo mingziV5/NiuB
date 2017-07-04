@@ -25,10 +25,47 @@ def login():
         if passwd == result['password']:
             data = {'last_login': time.strftime('%Y-%m-%d %H:%M:%S')}
             app.config['db'].execute_update_sql(table_name='user', data=data, where={'username': username})
+            token = utils.get_validate(result['username'], result['id'], result['r_id'], app.config['passport_key'])
             utils.write_log('api').info("%s login sucess" %username)
-            return json.dumps({'code': 0, 'authorization': 'token'})
+            return json.dumps({'code': 0, 'authorization': token})
         else:
             return json.dumps({'code': 1, 'errmsg': 'error password'})
     except:
         utils.write_log('api').error('login error: %s' %traceback.format_exc())
         return json.dumps({'code': 1, 'errmsg': 'login failed'})
+
+@app.route('/test/insert')
+def test_insert():
+    data = {
+        'username': 'test2', 
+        'password': '123456', 
+        'name': 'test_name', 
+        'email': 'ming_v5@163.com', 
+        'mobile': '88888888888', 
+        'r_id': 0, 
+        'join_date': '2017-07-04 20:21:32'
+        }
+    insert_result = app.config['db'].execute_insert_sql(table_name='user', data=data)
+    print insert_result
+    return 'test'
+
+@app.route('/test/select')
+def  test_select():
+    select_result = app.config['db'].get_one_result(table_name='user', fields=['id', 'username'], where={'username': 'test'})
+    select_result_all = app.config['db'].get_results(table_name='user', fields=['id', 'username'], where={'r_id': 0})
+    print select_result
+    print select_result_all
+    return 'test'
+
+@app.route('/test/update')
+def test_update():
+    data = {'username': 'test_update'}
+    update_result = app.config['db'].execute_update_sql(table_name='user', data=data, where={'username': 'test2'})
+    print update_result
+    return 'test'
+
+@app.route('/test/delete')
+def test_delete():
+    del_result = app.config['db'].execute_delete_sql(table_name='user', where={'username': 'test_update'})
+    print del_result
+    return 'test'
