@@ -37,13 +37,14 @@ def login():
 @app.route('/test/insert')
 def test_insert():
     data = {
-        'username': 'test2', 
+        'username': 'test1', 
         'password': '123456', 
         'name': 'test_name', 
         'email': 'ming_v5@163.com', 
         'mobile': '88888888888', 
-        'r_id': 0, 
-        'join_date': '2017-07-04 20:21:32'
+        'r_id': 0,
+        'is_lock': 1, 
+        'join_date': '2017-07-05 15:18:32'
         }
     insert_result = app.config['db'].execute_insert_sql(table_name='user', data=data)
     print insert_result

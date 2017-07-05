@@ -1,7 +1,7 @@
 #coding:utf-8
 #unicode_literals 作用将当前某块中所有字符串转换会Unicode
 from __future__ import unicode_literals
-from flask import Flask. render_template, session, redirect, request
+from flask import Flask, render_template, session, redirect, request
 from . import app
 import requests
 import json
@@ -21,13 +21,13 @@ def user(htmlname):
         return redirect('/login')
     return render_template(htmlname + '.html', user=session.get('username'))
 
-@app.route('project/<htmlname>')
+@app.route('/project/<htmlname>')
 def project(htmlname):
     if session.get('author', 'nologin') == 'nologin':
         return redirect('/login')
     return render_template(htmlname + '.html', user=session.get('username'))
 
-@app.route('cmdb/<htmlname>')
+@app.route('/cmdb/<htmlname>')
 def cmdb(htmlname):
     if session.get('author', 'nologin') == 'nologin':
         return redirect('/login')

@@ -1,7 +1,8 @@
 #coding:utf-8
 from flask import Flask, request, session, render_template, redirect
 from . import app
-import request, json
+import requests
+import json
 import utils
 
 headers = {'content-type': 'application/json'}
@@ -29,7 +30,7 @@ def login():
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    if session.get('author', 'nologin') == 'nologin'
+    if session.get('author', 'nologin') == 'nologin':
         return redirect('/login')
     session.pop('author', None)
     return redirect('/login')
