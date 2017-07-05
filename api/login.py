@@ -1,3 +1,4 @@
+#coding:utf8
 from api import app
 from flask import Flask,request
 import json
