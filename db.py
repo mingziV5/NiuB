@@ -143,18 +143,3 @@ class Cursor():
         return 'error'
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
