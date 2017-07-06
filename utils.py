@@ -19,10 +19,19 @@ def get_config(section=''):
     service_conf = os.path.join(work_dir, 'conf/service.conf')
     config.read(service_conf)
 
-    conf_items = dict(config.items('common')) if config.has_section('common') else {}
+    conf_items = decrypt_config(dict(config.items('common')) if config.has_section('common') else {})
+     
     #print conf_items
     if section and config.has_section(section):
         conf_items.update(config.items(section))
+    return conf_items
+
+#解密配置文件
+def decrypt_config(conf_items):
+    if 'mysql_passwd_encrypt' in conf_items:
+        conf_items['mysql_passwd'] = base64.b64decode(conf_items.pop('mysql_passwd_encrypt'))
+    if 'mysql_user_encrypt' in conf_items:
+        conf_items['mysql_user'] = base64.b64decode(conf_items.pop('mysql_user_encrypt'))
     return conf_items
 
 #写日志
