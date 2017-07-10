@@ -36,7 +36,7 @@
                     <input type="password" class="form-control" name="passwd" placeholder="密码"/>
                 </div>
                 <button type="submit" class="btn btn-lg btn-primary btn-block">登录</button>
-                <a id='forget'>忘记密码</a>
+                <a id='forget' href='#'>忘记密码</a>
             </form>
       </div>
 
@@ -48,7 +48,7 @@
 <script type="text/javascript">
 /* 忘记密码提示*/
 $("#forget").click(function() {
-    str="请联系管理员帮您重置密码"+'\n'+"邮箱：panda@reboot.com"
+    str="请联系管理员帮您重置密码"+'\n'+" "
     swal(str)
 });
 
