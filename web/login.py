@@ -23,6 +23,7 @@ def login():
             res = json.loads(res)
             session['author'] = token
             session['username'] = username
+            utils.write_log('web').info('%s login success' %username)
             return json.dumps({'code': 0})
         else:
             return json.dumps({'code': 1, 'errmsg': result['errmsg']})

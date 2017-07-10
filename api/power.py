@@ -83,7 +83,7 @@ def getlist(auth_info, **kwargs):
 @jsonrpc.method('power.get')
 @auth_login
 def get(auth_info, **kwargs):
-#    username = auth_info['username']
+    username = auth_info['username']
 #    if '1' not in auth_info['r_id']:
 #        return json.dumps({'code': 1, 'errmsg': 'sorry you have no power'})
     try:
