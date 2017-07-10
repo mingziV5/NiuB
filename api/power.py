@@ -34,7 +34,7 @@ def delete(auth_info, **kwargs):
             return json.dumps({'code': 1, 'errmsg': 'must need conditions'})
         result = app.config['db'].get_one_result('power', ['name'], where)
         if not result:
-            return json.dumps({'code': 1, 'errmsg': 'power name not exist'})
+            return json.dumps({'code': 1, 'errmsg': 'power name or id  not exist'})
         app.config['db'].execute_delete_sql('power', where)
         utils.write_log('api').info('%s delete power success' %username)
         return json.dumps({'code': 0, 'result': 'delete power success'})
@@ -51,7 +51,7 @@ def update(auth_info, **kwargs):
     try:
         data = request.get_json()['params'].get('data', None)
         where = request.get_json()['params'].get('where', None)
-        if not data or not where:
+        if not data and not where:
             return json.dumps({'code': 1, 'errmsg': 'must need data or conditions'})
         result = app.config['db'].execute_update_sql('power', data=data, where=where)
         if not result:
@@ -72,7 +72,8 @@ def getlist(auth_info, **kwargs):
         output = ['id', 'name', 'name_cn', 'url', 'comment']
         data = request.get_json()['params']
         fields = data.get('output', output)
-        result = app.config['db'].get_results('power', fields)
+        where = data.get('where', None)
+        result = app.config['db'].get_results('power', fields, where)
         utils.write_log('api').info('%s select power list success' %username)
         return json.dumps({'code': 0, 'result': result, 'count': len(result)})
     except:
@@ -82,9 +83,9 @@ def getlist(auth_info, **kwargs):
 @jsonrpc.method('power.get')
 @auth_login
 def get(auth_info, **kwargs):
-    username = auth_info['username']
-    if '1' not in auth_info['r_id']:
-        return json.dumps({'code': 1, 'errmsg': 'sorry you have no power'})
+#    username = auth_info['username']
+#    if '1' not in auth_info['r_id']:
+#        return json.dumps({'code': 1, 'errmsg': 'sorry you have no power'})
     try:
         output = ['id', 'name', 'name_cn', 'url', 'comment']
         data = request.get_json()['params']

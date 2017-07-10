@@ -53,7 +53,7 @@ class Cursor():
             return self._execute(sql)
         else: 
             utils.write_log('api').error('execute_insert_sql missing sql')
-            return 'error'
+            return None
     
     def _select_sql(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
         if isinstance(where, dict) and where:
@@ -77,6 +77,18 @@ class Cursor():
         utils.write_log('api').info('Select sql: %s' %sql)
         return sql
         
+    def if_id_exist(self, table_name, where, order=None, asc_order=True, limit=None):
+        sql = self._select_sql(table_name, ['count(1)'], where, order, asc_order, limit)
+        if sql:
+            self._execute(sql)
+            result_set = self._fetchone()
+            if int(result_set[0]) == len(where['id']):
+                return True
+            else:
+                return False
+        util.write_log('api').error('if_id_exist missing sql')
+        return False
+        
 
     def get_one_result(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
         sql = self._select_sql(table_name, fields, where, order, asc_order, limit)
@@ -88,7 +100,7 @@ class Cursor():
             else:
                 return {}
         utils.write_log('api').error('get_one_result missing sql')
-        return 'error'
+        return None
 
     def get_results(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
         sql = self._select_sql(table_name, fields, where, order, asc_order, limit)
@@ -103,7 +115,7 @@ class Cursor():
             else:
                 return {}
         utils.write_log('api').error('get_results missing sql')
-        return 'error'
+        return None
 
     def _update_sql(self, table_name, data, where, fields=None):
         if not (where and isinstance(where, dict)):
@@ -124,7 +136,7 @@ class Cursor():
             return self._execute(sql)
         else:
             utils.write_log('api').error('execute_update_sql missing sql')
-            return "error"
+            return None
 
     def _delete_sql(self, table_name, where):
         if not (where and isinstance(where, dict)):
@@ -140,6 +152,5 @@ class Cursor():
         if sql:
             return self._execute(sql)
         utils.write_log('api').error('execute_delete_sql missing sql')
-        return 'error'
-
+        return None
 
