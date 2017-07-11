@@ -54,6 +54,7 @@ def getapi():
             's_table': request.args.get('s_table', None),
             'where': {'id': int(u_id)}
         }
+    print data
     utils.write_log('web').info(data)
     r = requests.post(get_api(), headers = headers, json = data)
     return r.text
