@@ -18,16 +18,17 @@ def createuser(auth_info, *arg, **kwargs):
         return json.dumps({'code': 1, 'errmsg': 'you have no power'})
     try:
         data = request.get_json()['params']
+        #print 'user.create ------------- %s' %data
         if 'r_id' not in data:
             return json.dumps({'code': 1, 'errmsg': 'must need a role'})
-        if not app.config['db'].if_id_exist('role', data['r_id'].split(',')):
+        if not app.config['db'].if_id_exist('role', {'id': data['r_id'].split(',')}):
             return json.dumps({'code': 1, 'errmsg': 'role id not exist'})
         if data['password'] != data['repwd']:
             return json.dumps({'code': 1, 'errmsg': 'password equal repwd'})
         elif len(data['password']) < 6:
             return json.dumps({'code': 1, 'errmsg': 'passwd too short'})
         else:
-            data.pop['repwd']
+            data.pop('repwd')
         #data['password'] = hashlib.md5(datap['password']).hexdigest()
         data['join_date'] = time.strftime('%Y-%m-%d %H:%M:%S')
         app.config['db'].execute_insert_sql('user', data)
@@ -63,12 +64,14 @@ def userupdate(auth_info, **kwargs):
     username = auth_info['username']
     try:
         data = request.get_json()['params']
+        #print 'user.update ---------------%s' %data
         where = data.get('where', None)
         data = data.get('data', None)
+        #print 'user.update ---------------%s' %data
         fields = ['name', 'username', 'email', 'mobile']
         if not where:
             return json.dumps({'code': 1, 'errmsg': 'must need conditions'})
-        if not app.config['db'].if_id_exist('user', where['id']):
+        if not app.config['db'].if_id_exist('role', {'id': data['r_id'].split(',')}):
             return json.dumps({'code': 1, 'errmsg': 'user not exist'})
         if '1' in auth_info['r_id']:
             result = app.config['db'].execute_update_sql('user', data, where)
@@ -166,10 +169,11 @@ def passwd(auth_info):
     r_id = auth_info['r_id']
     try:
         data = request.get_json()
+        #print 'api----password %s' %data
         #管理员修改用户密码，需要传入user_id,不需要输入老密码
         if '1' in r_id and data.has_key('user_id'):
             user_id = data['user_id']
-            if not app.config['db'].if_id_exist('user', user_id):
+            if not app.config['db'].if_id_exist('user', {'id': [str(user_id)]}):
                 return json.dumps({'code': 1, 'errmsg': 'user not exist'})
             #password = hashlib.md5(data['password']).hexdigest()
             password = data['password']

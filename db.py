@@ -86,7 +86,7 @@ class Cursor():
                 return True
             else:
                 return False
-        util.write_log('api').error('if_id_exist missing sql')
+        utils.write_log('api').error('if_id_exist missing sql')
         return False
         
 
