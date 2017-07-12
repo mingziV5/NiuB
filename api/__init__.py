@@ -4,4 +4,4 @@ from flask_jsonrpc import JSONRPC
 app = Flask(__name__)
 jsonrpc = JSONRPC(app, '/api')
 
-import login, power, role
+import login, power, role, user, select

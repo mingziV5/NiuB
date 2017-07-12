@@ -156,7 +156,7 @@ def userlist(auth_info, **kwargs):
         return json.dumps({'code': 1, 'errmsg': 'get user list error'})
 
 #修改密码
-@app.route('/api/password', method=['post'])
+@app.route('/api/password', methods=['POST'])
 @auth_login
 def passwd(auth_info):
     if auth_info['code'] == 1:
@@ -169,19 +169,19 @@ def passwd(auth_info):
         #管理员修改用户密码，需要传入user_id,不需要输入老密码
         if '1' in r_id and data.has_key('user_id'):
             user_id = data['user_id']
-            if not app.config['db'].if_id_exist('user', user_id)
+            if not app.config['db'].if_id_exist('user', user_id):
                 return json.dumps({'code': 1, 'errmsg': 'user not exist'})
             #password = hashlib.md5(data['password']).hexdigest()
             password = data['password']
             app.config['db'].execute_update_sql('user', {'password': password}, {'id': user_id})
         else:
-            if not data.has_key('oldpassword')
+            if not data.has_key('oldpassword'):
                 return json.dumps({'code': 1, 'errmsg': 'need old password'})
             #oldpassword = hashlib.md5(data['oldpassword']).hexdigest()
             oldpassword = data['oldpassword']
             res = app.config['db'].get_one_result('user', ['password'], {'username': username})
             if res['password'] != oldpassword:
-                return json.dumps('code': 1, 'errmsg': 'old password wrong')
+                return json.dumps({'code': 1, 'errmsg': 'old password wrong'})
             #password = hashlib.md5(data['password']).hexdigest()
             password = data['password']
             app.config['db'].execute_update_sql('user', {'password': password}, {'username': username})
