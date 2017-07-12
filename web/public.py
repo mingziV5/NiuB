@@ -29,11 +29,11 @@ def listapi():
 @app.route('/addapi', methods = ['GET', 'POST'])
 def addapi():
     headers['authorization'] = session['author']
-    form_data = request.form
-    print form_data
-    print dict(form_data)
-    form_data = dict((k, v[0])for k, v in dict(request.form).items())
-    print form_data
+    #form_data = request.form
+    #print 'add---------------api %s' %form_data
+    #print 'add---------------api %s' %dict(form_data)
+    form_data = dict((k, ','.join(v)) for k, v in dict(request.form).items())
+    #print 'add---------------api %s' %form_data
     method = form_data['method']
     data['method'] = method + '.create'
     form_data.pop('method')
@@ -62,7 +62,7 @@ def getapi():
 @app.route('/updateapi', methods=['GET', 'POST'])
 def updateapi():
     headers['authorization'] = session['author']
-    form_data = dict((k, v[0]) for k, v in dict(request.form).items())
+    form_data = dict((k, ','.join(v)) for k, v in dict(request.form).items())
     print form_data
     method = form_data['method']
     data['method'] = method + '.update'
