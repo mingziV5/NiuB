@@ -35,6 +35,7 @@ def login():
         utils.write_log('api').error('login error: %s' %traceback.format_exc())
         return json.dumps({'code': 1, 'errmsg': 'login failed'})
 
+'''
 @app.route('/test/insert')
 def test_insert():
     data = {
@@ -71,3 +72,4 @@ def test_delete():
     del_result = app.config['db'].execute_delete_sql(table_name='user', where={'username': 'test_update'})
     print del_result
     return 'test'
+'''
