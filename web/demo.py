@@ -11,15 +11,16 @@ headers = {'content-type': 'application/json'}
 #dashboard页面
 @app.route('/')
 def index():
-    if session.get('author', 'nologin') == 'onlogin':
+    if session.get('author', 'nologin') == 'nologin':
         return redirect('/login')
     headers['authorization'] = session['author']
     url = 'http://%s/api' %app.config['api_url']
     data = {'jsonrpc': '2.0', 'id': 1, 'method': 'user.getinfo'}
-    req = requsts.post(url, headers = headers, json = data)
-    result = json.loads(json.loads(req.content).get('result', {}))
+    req = requests.post(url, headers = headers, json = data)
+    print req.content
+    result = json.loads(json.loads(req.content).get('result', '{}'))
     print result
-    if resutl['code'] == 0:
+    if result['code'] == 0:
         user = result['user']
         #用户信息存入session
         session['user'] = result['user']
@@ -35,7 +36,7 @@ def index():
 #适用于比较简单多功能，直接/htmlname 就能访问到,eg:deshboard
 @app.route('/<htmlname>')
 def single(htmlname):
-    if session.get('auth', 'nologin') == 'login':
+    if session.get('auth', 'nologin') == 'nologin':
         return redirect('/login')
     headers['authorization'] = session['author']
     validate_result = json.loads(utils.validate(session['author'], app.config['passport_key']))
