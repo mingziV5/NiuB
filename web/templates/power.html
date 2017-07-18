@@ -156,40 +156,39 @@ function datatable(){
 };
 
 
-function list(){                                                                                                                 
+function list(){
     var url="/listapi?method="+name    
     console.log(url)   
     $.getJSON(url,function(data){
-       data=JSON.parse(data['result']); //object 
-       console.log(data)   
-       if (data['code']== 0){       
-           var str = ''
-           $.each(data.result,function(k,v){   
-               str +='<tr class="odd gradeX">'+  
-               '<td>'+v['name']+'</td>'+  
-               '<td>'+v['name_cn']+'</td>'+  
-               '<td>'+v['url']+'</td>'+  
-               '<td>'+v['comment']+'</td>'+ 
-               '<td>'+
-               '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
-               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
-               '</td>'+ '</tr>'          
-           })   
-                //$("tbody").html(str)
-                if (typeof(myDataTable) == 'undefined'){
-                    $("tbody").html(str)
-                    myDataTable = datatable()
-                } else {
-                    myDataTable.clear()
-                    myDataTable.destroy()
-                    $("tbody").html(str)
-                    myDataTable = datatable()
-                }
-                //datatable()
-            }else{
-                swal("error", data['errmsg'],"error")
+        data=JSON.parse(data['result']); //object 
+        console.log(data)   
+        if (data['code']== 0){       
+            var str = ''
+            $.each(data.result,function(k,v){   
+                str +='<tr class="odd gradeX">'+  
+                '<td>'+v['name']+'</td>'+  
+                '<td>'+v['name_cn']+'</td>'+  
+                '<td>'+v['url']+'</td>'+  
+                '<td>'+v['comment']+'</td>'+ 
+                '<td>'+
+                '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
+                '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+                '</td>'+ '</tr>'          
+            })   
+            if (typeof(myDataTable) == 'undefined'){
+                $("tbody").html(str)
+                myDataTable = datatable()
+            } else {
+                myDataTable.clear()
+                myDataTable.destroy()
+                $("tbody").html(str)
+                myDataTable = datatable()
             }
-         })
+            //datatable()
+        }else{
+            swal("error", data['errmsg'],"error")
+        }
+    })
 }
 
 //初始化datatable

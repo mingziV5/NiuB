@@ -226,7 +226,7 @@
 {% block js %}
 name='user'
 function datatable(){
-    $('#datatable').DataTable({
+    return $('#datatable').DataTable({
         "language": {
             "lengthMenu": "每页 _MENU_ 条记录",
             "zeroRecords": "没有找到记录",
@@ -240,7 +240,9 @@ function datatable(){
                 "sNext": "下一页",
                 "sLast": "末页"
             }
-        }
+        },
+        'retrieve': true,
+        'destroy': true
     });
 };
 
@@ -249,35 +251,42 @@ function datatable(){
 function list(){
     url = "/listapi?method="+name
     $.getJSON(url,function(data){
-       data=JSON.parse(data['result']); // object 
-       console.log(data)                // Object {count: 3, code: 0, users: Array[3]}
-       if (data['code']== 0){       
-           var str = ''
-           $.each(data.users,function(k,v){   
-               if (v['is_lock']==0){
-                   v['is_lock']="正常"
-               }else{
-                   v['is_lock']="锁定"
-               } 
-               str +='<tr class="odd gradeX">'+  
-               '<td>'+v['username']+'</td>'+  
-               '<td>'+v['name']+'</td>'+  
-               '<td>'+v['email']+'</td>'+  
-               '<td>'+v['mobile']+'</td>'+ 
-               '<td><span style="color:#5EDF47;">'+v['is_lock']+'</span></td>'+ 
-               '<td>'+v['r_id']+'</td>'+ 
-               '<td>'+
-               '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
-               '<button class="btn btn-info btn-sm passwd-btn" data-id="'+v['id']+'">修改密码</button>'+
-               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
-               '</td>'+ '</tr>'          
-           })       
-                $("tbody").html(str)
-                 datatable()
-            }else{
-                swal("error", data['errmsg'],"error")
+        data=JSON.parse(data['result']); // object 
+        console.log(data)                // Object {count: 3, code: 0, users: Array[3]}
+        if (data['code']== 0){       
+            var str = ''
+            $.each(data.users,function(k,v){   
+                if (v['is_lock']==0){
+                    v['is_lock']="正常"
+                }else{
+                    v['is_lock']="锁定"
+                } 
+                str +='<tr class="odd gradeX">'+  
+                '<td>'+v['username']+'</td>'+  
+                '<td>'+v['name']+'</td>'+  
+                '<td>'+v['email']+'</td>'+  
+                '<td>'+v['mobile']+'</td>'+ 
+                '<td><span style="color:#5EDF47;">'+v['is_lock']+'</span></td>'+ 
+                '<td>'+v['r_id']+'</td>'+ 
+                '<td>'+
+                '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
+                '<button class="btn btn-info btn-sm passwd-btn" data-id="'+v['id']+'">修改密码</button>'+
+                '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+                '</td>'+ '</tr>'          
+            })
+            if (typeof(myDataTable) == 'undefined'){
+                $('tbody').html(str)
+                myDataTable = datatable()
+            } else {
+                myDataTable.clear()
+                myDataTable.destory()
+                $('tbody').html(str)
+                myDataTable = datatable()
             }
-         })
+        } else {
+            swal("error", data['errmsg'],"error")
+        }
+    })
 }
 
 list()
@@ -330,6 +339,7 @@ $('#addForm').on('submit',function(){
                 var str = $('#addForm').serialize()
                 var data=str+"&method=user"
                 console.log(data)
+                $('#addModal').modal('hide')
                 $.post('/addapi',data,function(data){ 
                     data=JSON.parse(data);   //将json串转换为对象，然后取值
                     data = JSON.parse(data['result']) //object
@@ -341,8 +351,9 @@ $('#addForm').on('submit',function(){
                                 type:"success",
                                 confirmButtonText:'确定'
                                 },function(){
-                                    $('#addModal').modal('hide')
-                                    window.location.reload();
+                                    //$('#addModal').modal('hide')
+                                    //window.location.reload();
+                                    list()
                                    })
                     }else{
                         swal("error","创建用户失败," + data['errmsg'],"error")
@@ -363,6 +374,7 @@ $("tbody").on('click','.passwd-btn',function(){
 $('#ChangePasswdForm').on('submit',function(){
     var str = $('#ChangePasswdForm').serialize()
     var url = '/user/changepasswd'
+    $('#ChangePasswdModal').modal('hide')
     $.post(url,str,function(result){
         result = JSON.parse(result)
         if (result['code']==0){
@@ -371,12 +383,10 @@ $('#ChangePasswdForm').on('submit',function(){
                 text:"密码更新成功",
                 type:"success",
                 confirmButtonText:'确定'
-                },function(){
-                    $('#ChangePasswdModal').modal('hide')
-                 })
+                })
         }else{
             $('#errorMsg').html('failed '+result['errmsg']).show()
-         }
+        }
     })
     return false
 })
@@ -440,6 +450,7 @@ $('#updateForm').on('submit',function(){
         if (check){       
                 var str = $('#updateForm').serialize()
                 var data = str+"&method=user"
+                $('#updateModal').modal('hide')
                 $.post('/updateapi',data, function(data){  // data is string
                     data = JSON.parse(data)    //object
                     data = JSON.parse(data['result']) //object
@@ -451,8 +462,7 @@ $('#updateForm').on('submit',function(){
                         type:"success",
                         confirmButtonText:'确定'
                         },function(){
-                            $('#updateModal').modal('hide')
-                            location.reload()
+                            list()
                         })
                     }else{
                         $('#uperrorMsg').html('Failed: '+data['errmsg']).show()
@@ -510,9 +520,8 @@ $('tbody').on('click', '.delete-btn', function(){
             $.getJSON(url, function(data){
                 data = JSON.parse(data['result'])
                 if (data['code'] == 0){
-                    swal('删除!', '删除成功', 'success', function(){
-                        list()
-                    })
+                    swal('删除!', '删除成功', 'success')
+                    list()
                 } else {
                     swal(data['errmsg'])
                 }
