@@ -135,7 +135,7 @@
 {% block js %}
 name='power'
 function datatable(){
-    $('#datatable').DataTable({
+    return $('#datatable').DataTable({
         "language": {
             "lengthMenu": "每页 _MENU_ 条记录",
             "zeroRecords": "没有找到记录",
@@ -149,7 +149,9 @@ function datatable(){
                 "sNext": "下一页",
                 "sLast": "末页"
             }
-        }
+        },
+        "retrieve": true, 
+        "destroy": true
     });
 };
 
@@ -172,19 +174,30 @@ function list(){
                '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
                '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
                '</td>'+ '</tr>'          
-           })       
-                $("tbody").html(str)
-                datatable()
+           })   
+                //$("tbody").html(str)
+                if (typeof(myDataTable) == 'undefined'){
+                    $("tbody").html(str)
+                    myDataTable = datatable()
+                } else {
+                    myDataTable.clear()
+                    myDataTable.destroy()
+                    $("tbody").html(str)
+                    myDataTable = datatable()
+                }
+                //datatable()
             }else{
                 swal("error", data['errmsg'],"error")
             }
          })
 }
 
+//初始化datatable
 list()
 
 /*点击按钮，显示添加用户模态窗*/
 $("#addBtn").on('click',function(){
+    $('#addForm').get(0).reset()
     $('#addModal').modal('show')
 })
 
@@ -194,6 +207,7 @@ $('#addForm').on('submit',function(){
         var str = $('#addForm').serialize()
         var data=str+"&method=power"
         console.log(data)
+        $('#addModal').modal('hide')
         $.post('/addapi',data,function(data){ 
             data=JSON.parse(data);   //将json串转换为对象，然后取值
             data = JSON.parse(data['result']) //object
@@ -205,8 +219,10 @@ $('#addForm').on('submit',function(){
                         type:"success",
                         confirmButtonText:'确定'
                         },function(){
-                            $('#addModal').modal('hide')
-                            window.location.reload();
+                            //$('#addModal').modal('hide')
+                            //window.location.reload()
+                            //$('#datatable').DataTable.destroy()
+                            list();
                           })
             }else{
                 swal("error","创建用户失败," + data['errmsg'],"error")
@@ -242,6 +258,7 @@ $('#updateForm').on('submit',function(){
         var str = $('#updateForm').serialize()
         var data = str+"&method=power"
         console.log(data)
+        $('#updateModal').modal('hide')
         $.post('/updateapi',data, function(data){  // data is string
             data = JSON.parse(data)    //object
             data = JSON.parse(data['result']) //object
@@ -253,8 +270,9 @@ $('#updateForm').on('submit',function(){
                 type:"success",
                 confirmButtonText:'确定'
                 },function(){
-                    $('#updateModal').modal('hide')
-                    location.reload()
+                    //$('#updateModal').modal('hide')
+                    //location.reload()
+                    list()
                 })
             }else{
                 $('#uperrorMsg').html('Failed: '+data['errmsg']).show()
@@ -264,7 +282,7 @@ $('#updateForm').on('submit',function(){
 })  //submit form
 
 
-/*删除用户*/
+/*原来的删除方法，改用swal
 $("tbody").on('click','.delete-btn',function(){
 	if(confirm("是否确认删除？")){
 		var id = $(this).attr('data-id')
@@ -279,7 +297,9 @@ $("tbody").on('click','.delete-btn',function(){
                     type:"success",
                     confirmButtonText:'删除成功'
                     },function(){
-                        location.reload()
+                        //$('#datatable').DataTable.destroy()
+                        list()
+                        //location.reload()
                     })
  				
 			}else{
@@ -287,5 +307,41 @@ $("tbody").on('click','.delete-btn',function(){
 			}
     	})
     }  // end confirm
-})   
+})
+*/
+/*删除用户*/
+$('tbody').on('click', '.delete-btn', function(){
+    var id = $(this).attr('data-id')
+    //console.log(id)
+    swal({
+        title: '确认删除',
+        text: '删除的数据将没有办法还原',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        closeOnConfirm: false,
+        closeOnCancel: false
+    }, 
+    function(isConfirm){
+        if (isConfirm) {
+            //var id = $(this).attr('data-id')
+            var url = '/deleteapi?method=' + name + '&id=' + id
+            console.log(url)
+            $.getJSON(url, function(data){
+                data = JSON.parse(data['result'])
+                if (data['code'] == 0){
+                    swal('删除!', '删除成功', 'success' )
+                    list()
+                } else {
+                    swal(data['errmsg'])
+                }
+        
+            })
+        } else {
+            swal('取消', '取消成功', 'error')
+        }
+    })
+})
+
 {% endblock %}

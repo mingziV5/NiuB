@@ -8,7 +8,7 @@ import json
 import utils
 
 headers = {'content-type': 'application/json'}
-#dashboard页面
+#首页用户信息页面
 @app.route('/')
 def index():
     if session.get('author', 'nologin') == 'nologin':
@@ -17,9 +17,7 @@ def index():
     url = 'http://%s/api' %app.config['api_url']
     data = {'jsonrpc': '2.0', 'id': 1, 'method': 'user.getinfo'}
     req = requests.post(url, headers = headers, json = data)
-    print req.content
     result = json.loads(json.loads(req.content).get('result', '{}'))
-    print result
     if result['code'] == 0:
         user = result['user']
         #用户信息存入session
@@ -36,7 +34,7 @@ def index():
 #适用于比较简单多功能，直接/htmlname 就能访问到,eg:deshboard
 @app.route('/<htmlname>')
 def single(htmlname):
-    if session.get('auth', 'nologin') == 'nologin':
+    if session.get('author', 'nologin') == 'nologin':
         return redirect('/login')
     headers['authorization'] = session['author']
     validate_result = json.loads(utils.validate(session['author'], app.config['passport_key']))
