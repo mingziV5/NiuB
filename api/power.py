@@ -51,7 +51,7 @@ def update(auth_info, **kwargs):
     try:
         data = request.get_json()['params'].get('data', None)
         where = request.get_json()['params'].get('where', None)
-        if not data and not where:
+        if not data or not where:
             return json.dumps({'code': 1, 'errmsg': 'must need data or conditions'})
         result = app.config['db'].execute_update_sql('power', data=data, where=where)
         if not result:
