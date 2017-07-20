@@ -70,17 +70,21 @@ def server_update(auth_info, **kwargs):
 @jsonrpc.method('server.get')
 @auth_login
 def server_getone(auth_info, **kwargs):
-    username = auth_inf['username']
+    username = auth_info['username']
+    if '1' not in auth_info['r_id']:
+        return json.dumps({'code': 1, 'errmsg': 'you have no power'})
     try:
         output = ['id', 'host_name', 'name_cn', 'ip', 'account', 'admin_username', 'admin_password', 'sg_id', 'comment', 'outerip']
         data = request.get_json()['params']
-        fields = data.get('output', ouput)
+        fields = data.get('output', output)
         where = data.get('where', None)
         result = app.config['db'].get_one_result('server', fields, where)
         if not result:
             return json.dumps({'code': 1, 'errmsg': 'data not exist'})
         sg_results = app.config['db'].get_results('server_group', ['id', 'name_cn'])
-        sg_dict = dict((str(x['id']), x['name']) for x in sg_results)
+        sg_dict = dict((str(x['id']), x['name_cn']) for x in sg_results)
+        print sg_dict
+        print result
         sg_name = sg_dict.get(result['sg_id'])
         result['sg_id'] = sg_name
         utils.write_log('api') .info('%s select server success' %username)
@@ -89,16 +93,26 @@ def server_getone(auth_info, **kwargs):
         utils.write_log('api').error('select server by name or id faild %s' %traceback.format_exc())
         return json.dumps({'code': 1, 'errmsg': 'select server by name or id faild'})   
 
-
-
-
-
-
-
-
-
-
-
-
+@jsonrpc.method('server.getlist')
+@auth_login
+def server_getlist(auth_info, **kwargs):
+    username = auth_info['username']
+    if '1' not in auth_info['r_id']:
+        return json.dumps({'code': 1, 'errmsg': 'you have no power'})
+    try:
+        output = ['id', 'host_name', 'name_cn', 'ip', 'account', 'admin_username', 'admin_password', 'sg_id', 'comment', 'outerip', 'server_group.name_cn']
+        data = request.get_json()['params']
+        fields = data.get('output', output) 
+        where = data.get('where', {})
+        where['server.sg_id'] = 'server_group.id'
+        join = data.get('join', False)
+        results = app.config['db'].get_results('server,server_group', fields, where, join=join)
+        if not results:
+            return json.dumps({'code': 1, 'errmsg': 'data not exist'})
+        utils.write_log('api').info('%s select server list success' %username)
+        return json.dumps({'code': 0, 'result': results, 'count': len(results)})
+    except:
+        utils.write_log('error').error('select server list faild %s' %traceback.format_exc())
+        return json.dumps({'code': 1, 'errmsg': 'select role list fail'})
 
 

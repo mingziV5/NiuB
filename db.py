@@ -55,11 +55,13 @@ class Cursor():
             utils.write_log('api').error('execute_insert_sql missing sql')
             return None
     
-    def _select_sql(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
+    def _select_sql(self, table_name, fields, where=None, order=None, asc_order=True, limit=None, join=False):
         if isinstance(where, dict) and where:
             conditions = []
             for k, v in where.items():
-                if isinstance(v, list):
+                if join and '.' in k and '.' in v:
+                    conditions.append("%s=%s" %(k, v))
+                elif isinstance(v, list):
                     conditions.append('%s IN (%s)' %(k, ','.join(v)))
                 elif isinstance(v, str) or isinstance(v, unicode):
                     conditions.append("%s='%s'" %(k, v))
@@ -77,8 +79,8 @@ class Cursor():
         utils.write_log('api').info('Select sql: %s' %sql)
         return sql
         
-    def if_id_exist(self, table_name, where, order=None, asc_order=True, limit=None):
-        sql = self._select_sql(table_name, ['count(1)'], where, order, asc_order, limit)
+    def if_id_exist(self, table_name, where, order=None, asc_order=True, limit=None, join=False):
+        sql = self._select_sql(table_name, ['count(1)'], where, order, asc_order, limit, join)
         if sql:
             self._execute(sql)
             result_set = self._fetchone()
@@ -90,8 +92,8 @@ class Cursor():
         return False
         
 
-    def get_one_result(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
-        sql = self._select_sql(table_name, fields, where, order, asc_order, limit)
+    def get_one_result(self, table_name, fields, where=None, order=None, asc_order=True, limit=None, join=False):
+        sql = self._select_sql(table_name, fields, where, order, asc_order, limit, join)
         if sql:
             self._execute(sql)
             result_set = self._fetchone()
@@ -102,8 +104,8 @@ class Cursor():
         utils.write_log('api').error('get_one_result missing sql')
         return None
 
-    def get_results(self, table_name, fields, where=None, order=None, asc_order=True, limit=None):
-        sql = self._select_sql(table_name, fields, where, order, asc_order, limit)
+    def get_results(self, table_name, fields, where=None, order=None, asc_order=True, limit=None, join=False):
+        sql = self._select_sql(table_name, fields, where, order, asc_order, limit, join)
         if sql:
             self._execute(sql)
             results_all_set = self._fetchall()

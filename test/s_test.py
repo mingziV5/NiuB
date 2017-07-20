@@ -29,8 +29,8 @@ def rpc():
         'method': 'server.create',      
         'id': '1',
         'params': {
-            'host_name': 'sxapp1t',
-            'name_cn': '应用服务器1t',
+            'host_name': 'sxapp1',
+            'name_cn': '应用服务器1',
             'ip': '10.210.92.60', 
             'account': 'wpweihu/SxYd.!@.#2013;yjg6709/SxYd.!@.#2013',
             'admin_username': 'root',
@@ -52,7 +52,7 @@ def rpc():
         }
 
     '''
-
+    '''
     data = {
         'jsonrpc': '2.0',
         'method': 'server.update',      
@@ -63,29 +63,28 @@ def rpc():
 	    }
 	}
 
-
-    '''
-    data = {
-        'jsonrpc':'2.0',
-        'method': 'servergroup.getlist',      
-        'id':'1',
-        'params':{
-            'output':['id','name','name_cn'],
-            }
-        }
-
     '''
     '''
     data = {
         'jsonrpc':'2.0',
-        'method': 'servergroup.get',
+        'method': 'server.getlist',      
         'id':'1',
         'params':{
-            'output':['id','name','name_cn'],
-            'where':{'name': 'etoh_xj'}
+            'output': ['server.id','server.host_name','server.name_cn','server_group.name_cn'],
+            'join': True
             }
         }
+
     '''
+    data = {
+        'jsonrpc':'2.0',
+        'method': 'server.get',
+        'id':'1',
+        'params':{
+            'output': ['id','host_name','name_cn', 'sg_id'],
+            'where': {'id': '1'},
+            }
+        }
     r = requests.post(url, headers=headers, json=data)
     print r.status_code
     print r.text
