@@ -7,4 +7,4 @@ jsonrpc = JSONRPC(app, '/api')
 import login
 import power, role, user
 import select
-import serverGroup
+import serverGroup, server
