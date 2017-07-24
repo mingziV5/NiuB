@@ -4,18 +4,31 @@ import utils
 import MySQLdb as mysql
 import traceback
 
+from DBUtils import PooledDB
+
 class Cursor():
     def __init__(self, config):
         self.config = dict([(k[6:], config[k]) for k in config if k.startswith('mysql_')])
         if 'port' in self.config:
             self.config['port'] = int(self.config['port'])
+        if 'maxcached' in self.config:
+            self.config['maxcached'] = int(self.config['maxcached'])
+        if 'maxconnections' in self.config:
+            self.config['maxconnections'] = int(self.config['maxconnections'])
+        if 'maxshared' in self.config:
+            self.config['maxshared'] = int(self.config['maxshared'])
+        if 'mincached' in self.config:
+            self.config['mincached'] = int(self.config['mincached'])
         if self.config:
             self._connect_db()
 
     def _connect_db(self):
         #**self.config传入参数字典
-        self.db = mysql.connect(**self.config)
-        self.db.autocommit(True)
+        #self.db = mysql.connect(**self.config)
+        print self.config
+        self.pool = PooledDB.PooledDB(mysql, **self.config)
+        self.db = self.pool.connection()
+        #self.db.autocommit(True)
         #使用cursor获取操作游标
         self.cur = self.db.cursor()
 
