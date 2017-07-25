@@ -20,7 +20,10 @@ def listapi():
     headers['authorization'] = session['author']
     method = request.args.get('method')
     data['method'] = method + '.getlist'
+    where = request.args.get('where')
     data['params'] = {}
+    if where == '1' and method == 'server':
+        data['params']['where'] = {'sg_id': request.args.get('sg_id')}
     utils.write_log('web').info(data)
     r = requests.post(get_api(), headers = headers, json = data)
     utils.write_log('web').info(r.text)
@@ -29,11 +32,7 @@ def listapi():
 @app.route('/addapi', methods = ['GET', 'POST'])
 def addapi():
     headers['authorization'] = session['author']
-    #form_data = request.form
-    #print 'add---------------api %s' %form_data
-    #print 'add---------------api %s' %dict(form_data)
     form_data = dict((k, ','.join(v)) for k, v in dict(request.form).items())
-    #print 'add---------------api %s' %form_data
     method = form_data['method']
     data['method'] = method + '.create'
     form_data.pop('method')

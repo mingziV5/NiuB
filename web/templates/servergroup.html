@@ -215,7 +215,7 @@ $("#addBtn").on('click',function(){
 /*服务器组添加*/
 $('#addForm').on('submit',function(){
         var str = $('#addForm').serialize()
-        var data=str+"&method=power"
+        var data=str+"&method=servergroup"
         console.log(data)
         $('#addModal').modal('hide')
         $.post('/addapi',data,function(data){ 
@@ -267,7 +267,7 @@ $("tbody").on('click','.update-btn',function(){
 /*更新服务器组信息*/
 $('#updateForm').on('submit',function(){
         var str = $('#updateForm').serialize()
-        var data = str+"&method=power"
+        var data = str+"&method=servergroup"
         console.log(data)
         $('#updateModal').modal('hide')
         $.post('/updateapi',data, function(data){  // data is string

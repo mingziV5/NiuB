@@ -100,13 +100,14 @@ def server_getlist(auth_info, **kwargs):
     if '1' not in auth_info['r_id']:
         return json.dumps({'code': 1, 'errmsg': 'you have no power'})
     try:
-        output = ['id', 'host_name', 'name_cn', 'ip', 'account', 'admin_username', 'admin_password', 'sg_id', 'comment', 'outerip', 'server_group.name_cn']
+        output = ['server.id', 'server.host_name', 'server.name_cn', 'server.ip', 'server.account', 'server.admin_username', 'server.admin_password', 'server.sg_id', 'server.comment', 'server.outerip', 'server_group.name_cn']
         data = request.get_json()['params']
         fields = data.get('output', output) 
         where = data.get('where', {})
         where['server.sg_id'] = 'server_group.id'
-        join = data.get('join', False)
+        join = data.get('join', True)
         results = app.config['db'].get_results('server,server_group', fields, where, join=join)
+        print results
         if not results:
             return json.dumps({'code': 1, 'errmsg': 'data not exist'})
         utils.write_log('api').info('%s select server list success' %username)

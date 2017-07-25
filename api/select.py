@@ -22,10 +22,10 @@ def selected(auth_info, **kwargs):
         s_table = data.get('s_table', None)
         res = app.config['db'].get_one_result(m_table, [field], where)
         res = res[field].split(',') #eg: ['1', '2']
-        result = app.config['db'].get_results(s_table, ['id', 'name'])
+        result = app.config['db'].get_results(s_table, ['id', 'name', 'name_cn'])
         for x in result: #eg: [{'id':1, 'name':'sa'},{'id': 2, 'name': 'php'}]
             for r_id in res:
-                if r_id in str(x['id']):
+                if int(r_id) == int(x['id']):
                     x['selected'] = 'selected="selected"'
         utils.write_log('api').info('%s selected %s successfully' %(username, s_table))
         return json.dumps({'code': 0, 'result': result})
